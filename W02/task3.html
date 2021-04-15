@@ -1,0 +1,64 @@
+<html>
+    <head>
+        <title>W02: Task 3</title>
+    </head>
+    <body>
+        <h1>Calculate the area of a triangle given the coordinates of the three vertices.</h1>
+        <h3>Input three vertices.</h3>
+        <form id="form1" action="#">
+            <p>v0: 
+                <input type="number" id="v0_x" name="v0_x">
+                <input type="number" id="v0_y" name="v0_y">
+                <input type="number" id="v0_z" name="v0_z">
+            </p>
+        </form>
+        <form id="form2" action="#">
+            <p>v1: 
+                <input type="number" id="v1_x" name="v1_x">
+                <input type="number" id="v1_y" name="v1_y">
+                <input type="number" id="v1_z" name="v1_z">
+            </p>
+        </form>
+        <form id="form3" action="#">
+            <p>v2: 
+                <input type="number" id="v2_x" name="v2_x">
+                <input type="number" id="v2_y" name="v2_y">
+                <input type="number" id="v2_z" name="v2_z">
+            </p>
+        </form>
+        <input type="button" onclick="dispResult()" value="calculate"/>
+        <p id="target"></p>
+
+        <script src="vec3.js"></script>
+        <script>
+            function areaOfTriangle(v0, v1, v2){
+                let vec1 = v1.sub(v0)
+                let vec2 = v2.sub(v0)
+                let s = 0.5*Math.sqrt(
+                    Math.pow(vec1.x*vec2.y-vec1.y*vec2.x,2)+
+                    Math.pow(vec1.y*vec2.z-vec1.z*vec2.y,2)+
+                    Math.pow(vec1.z*vec2.x-vec1.x*vec2.z,2))
+                    return s
+            }
+            function dispResult(){
+                let x0 = document.getElementById("form1").elements[0].value
+                let y0 = document.getElementById("form1").elements[1].value
+                let z0 = document.getElementById("form1").elements[2].value
+
+                let x1 = document.getElementById("form2").elements[0].value
+                let y1 = document.getElementById("form2").elements[1].value
+                let z1 = document.getElementById("form2").elements[2].value
+
+                let x2 = document.getElementById("form3").elements[0].value
+                let y2 = document.getElementById("form3").elements[1].value
+                let z2 = document.getElementById("form3").elements[2].value
+
+                let v0 = new Vec3(x0, y0, z0);
+                let v1 = new Vec3(x1, y1, z1);
+                let v2 = new Vec3(x2, y2, z2);
+                
+                document.getElementById("target").innerHTML = "Result: "+areaOfTriangle(v0, v1, v2)
+            }
+        </script>
+    </body>
+</html>
