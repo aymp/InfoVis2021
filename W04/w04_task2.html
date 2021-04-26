@@ -14,11 +14,18 @@
 		.data(data)
 	        .enter()
 	        .append("rect")
-	        .attr("x", padding)
-	        .attr("y", function(d,i){ return padding + i * ( height + padding ); })
-	        .attr("width", function(d){ return d.value; })
-            .attr("height", height);
-
+	        .attr("x", padding + 60)
+			.attr("y", function(d,i){ return padding + i * ( height + padding ); })
+ 			.attr("width", function(d){ return d.value; })
+            .attr("height", height)
+		 svg.selectAll("text")
+		.data(data)
+			.enter()
+			.append("text")
+			.text(function(d){ return d.label; })
+			.attr("fill", "black")
+			.attr("x", padding)
+			.attr("y", function(d,i){ return padding + i * ( height + padding ) - this.getBBox().y; })
 	 };
 	</script>
     </body>

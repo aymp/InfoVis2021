@@ -1,4 +1,5 @@
-label,value
-Label1,100
-Label2,50
-Label3,80
+label,value,color
+Label1,100,antiquewhite
+Label2,50,cadetblue
+Label3,80,coral
+Label4,160,darkseagreen
