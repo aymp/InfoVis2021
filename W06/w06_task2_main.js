@@ -88,11 +88,11 @@ class ScatterPlot {
 
         const xmin = d3.min( self.data, d => d.precision );
         const xmax = d3.max( self.data, d => d.precision );
-        self.xscale.domain( [0, xmax + self.config.margin.axis] );
+        self.xscale.domain( [0, 1] );
 
         const ymin = d3.min( self.data, d => d.recall );
         const ymax = d3.max( self.data, d => d.recall );
-        self.yscale.domain( [ymax + self.config.margin.axis, 0] );
+        self.yscale.domain( [1, 0] );
 
         self.render();
     }
@@ -106,7 +106,7 @@ class ScatterPlot {
             .append("circle")
             .attr("cx", d => self.xscale( d.precision ) )
             .attr("cy", d => self.yscale( d.recall ) )
-            .attr("r", d => 20 );
+            .attr("r", d => 10 );
         
         self.xaxis_group
             .call( self.xaxis );
