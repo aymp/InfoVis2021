@@ -1,4 +1,4 @@
-d3.csv("https://vizlab-kobe-lecture.github.io/InfoVis2021/W04/data.csv")
+d3.csv("https://aymp.github.io/InfoVis2021/W06/w06_task.csv")
     .then( data => {
         data.forEach( d => { d.x = +d.x; d.y = +d.y; });
 
@@ -6,7 +6,7 @@ d3.csv("https://vizlab-kobe-lecture.github.io/InfoVis2021/W04/data.csv")
             parent: '#drawing_region',
             width: 256,
             height: 256,
-            margin: {top:10, right:10, bottom:20, left:30, axis:20, title:30, label:20}
+            margin: {top:10, right:10, bottom:20, left:20, axis:20, title:40, label:20}
         };
 
         const scatter_plot = new ScatterPlot( config, data );
@@ -23,7 +23,7 @@ class ScatterPlot {
             parent: config.parent,
             width: config.width || 256,
             height: config.height || 256,
-            margin: config.margin || {top:10, right:10, bottom:10, left:10}
+            margin: config.margin || {top:10, right:10, bottom:10, left:10, axis:10, title:10, label:10}
         }
         this.data = data;
         this.init();
@@ -86,27 +86,29 @@ class ScatterPlot {
     update() {
         let self = this;
 
-        const xmin = d3.min( self.data, d => d.x );
-        const xmax = d3.max( self.data, d => d.x );
-        self.xscale.domain( [0, xmax + self.config.margin.axis] );
+        const xmin = d3.min( self.data, d => d.precision );
+        const xmax = d3.max( self.data, d => d.precision );
+        self.xscale.domain( [0, 1] );
 
-        const ymin = d3.min( self.data, d => d.y );
-        const ymax = d3.max( self.data, d => d.y );
-        self.yscale.domain( [ymax + self.config.margin.axis, 0] );
+        const ymin = d3.min( self.data, d => d.recall );
+        const ymax = d3.max( self.data, d => d.recall );
+        self.yscale.domain( [1, 0] );
 
         self.render();
     }
 
     render() {
         let self = this;
+        let title = ["Precision and Recall of representative","time series anomaly detection methods","based on sample reconstruction(black)","and LSTM-based VAE-GAN(red)"];
 
         self.plot_area.selectAll("circle")
             .data(self.data)
             .enter()
             .append("circle")
-            .attr("cx", d => self.xscale( d.x ) )
-            .attr("cy", d => self.yscale( d.y ) )
-            .attr("r", d => d.r );
+            .attr("cx", d => self.xscale( d.precision ) )
+            .attr("cy", d => self.yscale( d.recall ) )
+            .attr("r", d => d.r )
+            .style("fill", d => d.color);
         
         self.xaxis_group
             .call( self.xaxis );
@@ -114,17 +116,21 @@ class ScatterPlot {
         self.yaxis_group
             .call( self.yaxis );
 
-        self.title
+        self.title.selectAll("text")
+            .data(title)
+            .enter()
             .append("text")
+            .attr("y", (d,i) => 10 * i)
             .attr("text-anchor", "middle")
-            .text("Chart Title")
-            .style("font-size", "20px")
-            .style("font-weight", "bold");
+            .text(d => d)
+            .style("font-size", "10px")
+            .style("font-weight", "bold")
+            .style("alignment-baseline", "text-after-edge");
 
         self.xlabel
             .append("text")
             .attr("text-anchor", "middle")
-            .text("X-label")
+            .text("Precision")
             .style("font-size", "15px")
             .style("font-weight", "bold")
             .style("alignment-baseline", "text-before-edge");
@@ -133,7 +139,7 @@ class ScatterPlot {
             .append("text")
             .attr("transform", "rotate(-90)")
             .attr("text-anchor", "middle")
-            .text("Y-label")
+            .text("Recall")
             .style("font-size", "15px")
             .style("font-weight", "bold")
             .style("alignment-baseline", "text-after-edge");
