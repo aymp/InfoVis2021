@@ -131,7 +131,7 @@ class ScatterPlot {
             .append("text")
             .attr("text-anchor", "middle")
             .text("Precision")
-            .style("font-size", "15px")
+            .style("font-size", "14px")
             .style("font-weight", "bold")
             .style("alignment-baseline", "text-before-edge");
 
@@ -140,7 +140,7 @@ class ScatterPlot {
             .attr("transform", "rotate(-90)")
             .attr("text-anchor", "middle")
             .text("Recall")
-            .style("font-size", "15px")
+            .style("font-size", "14px")
             .style("font-weight", "bold")
             .style("alignment-baseline", "text-after-edge");
 
