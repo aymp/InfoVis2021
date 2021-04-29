@@ -1,5 +1,5 @@
-precision,recall,color
-0.4353,0.848,black
-0.8464,0.8516,black
-0.6007,0.8509,black
-0.8752,0.9067,red
+precision,recall,r,color
+0.4353,0.848,10,black
+0.8464,0.8516,10,black
+0.6007,0.8509,10,black
+0.8752,0.9067,10,red
