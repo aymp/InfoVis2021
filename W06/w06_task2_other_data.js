@@ -78,7 +78,7 @@ class ScatterPlot {
             .attr('transform', `translate(${self.config.margin.label + self.inner_width/2}, ${self.config.margin.title + self.inner_height + self.config.margin.bottom})`);
 
         self.ylabel = self.chart.append('g')
-            .attr('transform', `translate(0, ${self.config.margin.title + self.inner_height/2})`);
+            .attr('transform', `translate(-5, ${self.config.margin.title + self.inner_height/2})`);
 
 
     }
