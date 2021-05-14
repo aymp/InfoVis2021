@@ -1,4 +1,4 @@
-var data = [
+/*var data = [
     {x:0, y:100},
     {x:40, y:5},
     {x:120, y:80},
@@ -11,7 +11,25 @@ var config = {
     width: 256,
     height: 128,
     margin: {top:10, right:10, bottom:20, left:30}
-};
+};*/
+
+d3.csv("https://aymp.github.io/InfoVis2021/W08/w08_task02_data.csv")
+    .then( data => {
+        data.forEach( d => { d.x = +d.x; d.y = +d.y; });
+
+        var config = {
+            parent: '#drawing_region',
+            width: 256,
+            height: 128,
+            margin: {top:10, right:10, bottom:20, left:30}
+        };
+
+        const line_chart = new LineChart( config, data );
+        line_chart.update();
+    })
+    .catch( error => {
+        console.log( error );
+    });
 
 class LineChart {
     constructor( config, data ) {
@@ -88,5 +106,5 @@ class LineChart {
     }
 }
 
-const line_chart = new LineChart( config, data );
-line_chart.update();
+//const line_chart = new LineChart( config, data );
+//line_chart.update();
