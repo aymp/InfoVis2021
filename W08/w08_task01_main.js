@@ -105,5 +105,5 @@ class BarChart {
     }
 }
 
-const bar_chart = new BarChart( config, data );
-bar_chart.update();
+//const bar_chart = new BarChart( config, data );
+//bar_chart.update();
