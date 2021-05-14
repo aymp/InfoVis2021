@@ -1,3 +1,4 @@
+/*
 var data = [
   {label:'Apple', value:100},
   {label:'Banana', value:200},
@@ -10,7 +11,25 @@ var config = {
   parent: '#drawing_region',
   width: 256,
   height: 256,
-};
+};*/
+
+d3.csv("https://aymp.github.io/InfoVis2021/W08/w08_task03_data.csv")
+    .then( data => {
+        data.forEach( d => { d.label = d.label; d.value = +d.value; });
+
+        var config = {
+            parent: '#drawing_region',
+            width: 256,
+            height: 256,
+        };
+
+        const pie_chart = new PieChart( config, data );
+        pie_chart.update();
+    })
+    .catch( error => {
+        console.log( error );
+    });
+
 
 class PieChart {
   constructor( config, data ) {
@@ -44,8 +63,8 @@ class PieChart {
           .outerRadius(self.radius);
 
       self.text = d3.arc()
-          .innerRadius(self.radius - 30)
-          .outerRadius(self.radius - 30);
+          .innerRadius(Math.round(self.radius * 0.75))
+          .outerRadius(Math.round(self.radius * 0.75));
 
       self.render();
   }
@@ -75,5 +94,5 @@ class PieChart {
   }
 }
 
-const pie_chart = new PieChart( config, data );
-pie_chart.update();
+//const pie_chart = new PieChart( config, data );
+//pie_chart.update();
