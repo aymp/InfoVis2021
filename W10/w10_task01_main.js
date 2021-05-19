@@ -24,7 +24,7 @@ d3.select('#reverse')
     });
 */
 
-d3.csv("https://vizlab-kobe-lecture.github.io/InfoVis2021/W10/covid19_20210508.csv")
+d3.csv("https://vizlab-kobe-lecture.github.io/InfoVis2021/W10/covid19_20210518.csv")
     // 出典：https://web.sapmed.ac.jp/canmol/coronavirus/japan.html
     .then( data => {
         data.forEach( d => { d.prefecture = d.prefecture; d.number = +d.number; });
