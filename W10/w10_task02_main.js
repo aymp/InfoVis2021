@@ -1,6 +1,6 @@
 d3.csv("https://aymp.github.io/InfoVis2021/W06/w06_task.csv")
     .then( data => {
-        data.forEach( d => { d.x = +d.precision; d.y = +d.recall; });
+        data.forEach( d => { d.x = +d.precision; d.y = +d.recall; d.label = d.method});
 
         var config = {
             parent: '#drawing_region',

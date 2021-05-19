@@ -82,15 +82,44 @@ class ScatterPlot {
     render() {
         let self = this;
         let title = ["Precision and Recall of representative","time series anomaly detection methods","based on sample reconstruction(black)","and LSTM-based VAE-GAN(red)"];
-
+        
+        /*
         self.plot_area.selectAll("circle")
             .data(self.data)
             .enter()
             .append("circle")
-            .attr("cx", d => self.xscale( d.precision ) )
-            .attr("cy", d => self.yscale( d.recall ) )
+            .attr("cx", d => self.xscale( d.x ) )
+            .attr("cy", d => self.yscale( d.y ) )
+            .attr("r", d => d.r )
+            .style("fill", d => d.color);*/
+        
+        let circles = self.plot_area.selectAll("circle")
+            .data(self.data)
+            .enter()
+            .append("circle");
+
+        circles
+            .attr("cx", d => self.xscale( d.x ) )
+            .attr("cy", d => self.yscale( d.y ) )
             .attr("r", d => d.r )
             .style("fill", d => d.color);
+
+        circles
+            .on('mouseover', (e,d) => {
+                d3.select('#tooltip')
+                    .style('opacity', 1)
+                    .html(`<div class="tooltip-label">Method, Precision, Recall</div>(${d.label}, ${d.x}, ${d.y})`);
+            })
+            .on('mousemove', (e) => {
+                const padding = 10;
+                d3.select('#tooltip')
+                    .style('left', (e.pageX + padding) + 'px')
+                    .style('top', (e.pageY + padding) + 'px');
+            })
+            .on('mouseleave', () => {
+                d3.select('#tooltip')
+                    .style('opacity', 0);
+            });
         
         self.xaxis_group
             .call( self.xaxis );
