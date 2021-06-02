@@ -19,7 +19,7 @@ button {
     var mx, my, mouseX, mouseY;
 
     var grid3d = d3._3d()
-        .shape('GRID', 4)
+        .shape('GRID', 11)
         .origin(origin)
         .rotateY( startAngle)
         .rotateX(-startAngle)
@@ -54,7 +54,8 @@ button {
             .merge(xGrid)
             .attr('stroke', 'black')
             .attr('stroke-width', 0.3)
-            .attr('fill', function(d){ return d.ccw ? 'lightgrey' : 'white'; })
+            //.attr('fill', function(d){ return d.ccw ? 'lightgrey' : 'white'; })
+            .attr('fill', 'white')
             .attr('fill-opacity', 0.9)
             .attr('d', grid3d.draw);
 
@@ -133,17 +134,17 @@ button {
             if (error) throw error;
             var cnt = 0;
             xGrid = [], scatter = [], yLine = [];
-            for(var z = 0; z < 5; z++){
-                for(var x = 0; x < 4; x++){
+            for(var z = -5; z < 6; z++){
+                for(var x = -5; x < 6; x++){
                     xGrid.push([x, -0, z]);
-                    scatter.push({x: x, y: -5, z: z, id: 'point_' + cnt++});
+                    //scatter.push({x: x, y: -5, z: z, id: 'point_' + cnt++});
                 }
             }
             scatter = [];
-            data.forEach(function(d){ scatter.push( {x: d.x, y: d.y, z: d.z, id: 'point_'+cnt++} ) })
-            console.log(scatter)
+            //data.forEach(function(d){ scatter.push( {x: d.x, y: d.y, z: d.z, id: 'point_'+cnt++} ) })
+            data.forEach(function(d){ scatter.push( {x: d.x, y: d.y, z: d.z, id: 'point_'+d.true_label} ) })
 
-            d3.range(-1, 5, 1).forEach(function(d){ yLine.push([0, d, 0]); });
+            d3.range(-5, 6, 1).forEach(function(d){ yLine.push([0, d, 0]); });
 
             var data = [
                 grid3d(xGrid),
