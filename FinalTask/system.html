@@ -13,13 +13,13 @@ button {
 </style>
 <button>update</button>
 <script>
-    var origin = [480, 300], j = 10, scale = 20, scatter = [], yLine = [], xGrid = [], beta = 0, alpha = 0, key = function(d){ return d.id; }, startAngle = Math.PI/4;
+    var origin = [480, 300], j = 10, scale = 40, scatter = [], yLine = [], xGrid = [], beta = 0, alpha = 0, key = function(d){ return d.id; }, startAngle = Math.PI/4;
     var svg    = d3.select('svg').call(d3.drag().on('drag', dragged).on('start', dragStart).on('end', dragEnd)).append('g');
     var color  = d3.scaleOrdinal(d3.schemeCategory20);
     var mx, my, mouseX, mouseY;
 
     var grid3d = d3._3d()
-        .shape('GRID', 20)
+        .shape('GRID', 4)
         .origin(origin)
         .rotateY( startAngle)
         .rotateX(-startAngle)
@@ -54,7 +54,7 @@ button {
             .merge(xGrid)
             .attr('stroke', 'black')
             .attr('stroke-width', 0.3)
-            .attr('fill', function(d){ return d.ccw ? 'lightgrey' : '#717171'; })
+            .attr('fill', function(d){ return d.ccw ? 'lightgrey' : 'white'; })
             .attr('fill-opacity', 0.9)
             .attr('d', grid3d.draw);
 
@@ -128,23 +128,58 @@ button {
     }
 
 	function init(){
+        
+        d3.csv("https://aymp.github.io/InfoVis2021/FinalTask/latent_space.csv", function(error, data) {
+            if (error) throw error;
+            var cnt = 0;
+            xGrid = [], scatter = [], yLine = [];
+            for(var z = 0; z < 5; z++){
+                for(var x = 0; x < 4; x++){
+                    xGrid.push([x, -0, z]);
+                    scatter.push({x: x, y: -5, z: z, id: 'point_' + cnt++});
+                }
+            }
+            scatter = [];
+            data.forEach(function(d){ scatter.push( {x: d.x, y: d.y, z: d.z, id: 'point_'+cnt++} ) })
+            console.log(scatter)
+
+            d3.range(-1, 5, 1).forEach(function(d){ yLine.push([0, d, 0]); });
+
+            var data = [
+                grid3d(xGrid),
+                point3d(scatter),
+                yScale3d([yLine])
+            ];
+            processData(data, 1000);
+        })
+        /*
         var cnt = 0;
         xGrid = [], scatter = [], yLine = [];
-        for(var z = -j; z < j; z++){
-            for(var x = -j; x < j; x++){
+        for(var z = 0; z < 5; z++){
+            for(var x = 0; x < 4; x++){
                 xGrid.push([x, -0, z]);
                 scatter.push({x: x, y: -5, z: z, id: 'point_' + cnt++});
             }
         }
+        
+        scatter = [];
+        d3.csv("https://aymp.github.io/InfoVis2021/FinalTask/latent_space.csv", function(data) {
+            var cnt = 0;
+            scatter = [];
+            data.forEach(function(d){ scatter.push( {x: d.x, y: d.y, z: d.z, id: 'point_'+cnt++} ) })
+            console.log(scatter)
+        });
+        console.log(scatter)
 
-        d3.range(-1, 11, 1).forEach(function(d){ yLine.push([-0, -d, -0]); });
+
+        d3.range(-1, 5, 1).forEach(function(d){ yLine.push([0, d, 0]); });
 
         var data = [
             grid3d(xGrid),
             point3d(scatter),
             yScale3d([yLine])
         ];
-        processData(data, 1000);
+        processData(data, 1000);*/
     }
 
     function dragStart(){

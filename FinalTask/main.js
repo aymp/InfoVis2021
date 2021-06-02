@@ -1,39 +1,46 @@
 // 3Dscatter
-d3.csv("https://aymp.github.io/InfoVis2021/W10/covid19_20210518.csv")
-    // 出典：https://web.sapmed.ac.jp/canmol/coronavirus/japan.html
-    .then( data => {
-        data.forEach( d => { d.label = d.prefecture; d.value = +d.number; });
+d3.csv("https://aymp.github.io/InfoVis2021/FinalTask/latent_space.csv")
+    .then( function(data) {
+        data.forEach( d => { d.x = +d.x; d.y = +d.y; d.z = +d.z });
 
         var config = {
             parent: '#drawing_region',
-            width: 512,
-            height: 256,
-            margin: {top:30, right:10, bottom:50, left:100},
-            title: '7日間の新規感染者数(人口100万人あたり) *2021.05.19時点',
-            xlabel: '人口100万人あたりの人数',
-            ylabel: '都道府県(近畿)' 
+            width: 960,
+            height: 500,
+            scale: 20,
+            j: 10,
+            startAngle: Math.PI/4,
+            durationTime: 1000
+            //margin: {top:30, right:10, bottom:50, left:100}
         };
 
-        const bar_chart = new BarChart( config, data );
-        bar_chart.update();
+        var cnt = 0;
+        /* ----------- GRID ----------- */
+        var xGrid = [];
 
-        d3.select('#reverse')
-        .on('click', d => {
-            data.reverse();
-            bar_chart.update();
-        })
+        /* ----------- POINTS ----------- */
+        var scatter = [];
+        var cnt = 0;
+        data.forEach(function(d){ scatter.push( {x: +d.x, y: +d.y, z: +z, id: 'point_'+cnt++} ) })
+        for(var z = -j; z < j; z++){
+            for(var x = -j; x < j; x++){
+                xGrid.push([x, -0, z]);
+            }
+        }
+        
+        /* ----------- y-Scale ----------- */
+        var yLine = [];
+        d3.range(-1, 11, 1).forEach(function(d){ yLine.push([-0, -d, -0]); });
 
-        d3.select('#descend')
-        .on('click', d => {
-            data.sort(function(a,b){return d3.descending(a.value,b.value)});
-            bar_chart.update();
-        })
+        /* ----------- DATA ----------- */
+        var data = [
+            grid3d(xGrid),
+            point3d(scatter),
+            yScale3d([yLine])
+        ];
 
-        d3.select('#ascend')
-        .on('click', d => {
-            data.sort(function(a,b){return d3.ascending(a.value,b.value)});
-            bar_chart.update();
-        })
+        const _3d_scatter_plot = new _3dScatterPlot( config, data );
+        _3d_scatter_plot.update();
     
     })
     .catch( error => {
