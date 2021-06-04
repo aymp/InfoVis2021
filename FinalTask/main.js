@@ -1,48 +1,107 @@
-// 3Dscatter
-d3.csv("https://aymp.github.io/InfoVis2021/FinalTask/latent_space.csv")
-    .then( function(data) {
-        data.forEach( d => { d.x = +d.x; d.y = +d.y; d.z = +d.z });
+/*d3.csv("https://aymp.github.io/InfoVis2021/FinalTask/latent_space.csv", function(train_error, train_data) {
+    if (train_error) throw train_error;
+    d3.csv("https://aymp.github.io/InfoVis2021/FinalTask/test.csv", function(test_error, test_data) {
+        if (test_error) throw test_error;
+        d3.csv("https://aymp.github.io/InfoVis2021/FinalTask/additional.csv", function(add_error, add_data) {
+            if (add_error) throw add_error;
 
-        var config = {
-            parent: '#drawing_region',
-            width: 960,
-            height: 500,
-            scale: 20,
-            j: 10,
-            startAngle: Math.PI/4,
-            durationTime: 1000
-            //margin: {top:30, right:10, bottom:50, left:100}
-        };
+            let train_config = {
+                parent: '#drawing_region_train',
+                origin: [250, 250],
+                width: 500,
+                height: 500,
+                scale: 40,
+                startAngle:  7*Math.PI/6,
+                minScale: -5,
+                maxScale: 5,
+                durationTime: 1000
+            };
 
-        var cnt = 0;
-        /* ----------- GRID ----------- */
-        var xGrid = [];
+            let test_config = {
+                parent: '#drawing_region_test',
+                origin: [250, 250],
+                width: 500,
+                height: 500,
+                scale: 40,
+                startAngle:  7*Math.PI/6,
+                minScale: -5,
+                maxScale: 5,
+                durationTime: 1000
+            };
 
-        /* ----------- POINTS ----------- */
-        var scatter = [];
-        var cnt = 0;
-        data.forEach(function(d){ scatter.push( {x: +d.x, y: +d.y, z: +z, id: 'point_'+cnt++} ) })
-        for(var z = -j; z < j; z++){
-            for(var x = -j; x < j; x++){
-                xGrid.push([x, -0, z]);
-            }
-        }
-        
-        /* ----------- y-Scale ----------- */
-        var yLine = [];
-        d3.range(-1, 11, 1).forEach(function(d){ yLine.push([-0, -d, -0]); });
+            let add_config = {
+                parent: '#drawing_region_add',
+                origin: [250, 250],
+                width: 500,
+                height: 500,
+                scale: 40,
+                startAngle:  7*Math.PI/6,
+                minScale: -5,
+                maxScale: 5,
+                durationTime: 1000
+            };
 
-        /* ----------- DATA ----------- */
-        var data = [
-            grid3d(xGrid),
-            point3d(scatter),
-            yScale3d([yLine])
-        ];
-
-        const _3d_scatter_plot = new _3dScatterPlot( config, data );
-        _3d_scatter_plot.update();
-    
+            const train_3d_scatter_plot = new _3dScatterPlot( train_config, train_data );
+            const test_3d_scatter_plot = new _3dScatterPlot( test_config, test_data );
+            const add_3d_scatter_plot = new _3dScatterPlot( add_config, add_data );
+            train_3d_scatter_plot.update();
+            test_3d_scatter_plot.update();
+            add_3d_scatter_plot.update();
+            
+        })
     })
-    .catch( error => {
-        console.log( error );
+})*/
+
+d3.queue()
+    .defer(d3.csv, "https://aymp.github.io/InfoVis2021/FinalTask/latent_space.csv")
+    .defer(d3.csv, "https://aymp.github.io/InfoVis2021/FinalTask/test.csv")
+    .defer(d3.csv, "https://aymp.github.io/InfoVis2021/FinalTask/additional.csv")
+    .await(function(error, train_data, test_data, add_data) {
+        if (error) {
+            console.error('Oh dear, something went wrong: ' + error);
+        }
+        else {
+            let train_config = {
+                parent: '#drawing_region_train',
+                origin: [200, 200],
+                width: 400,
+                height: 400,
+                scale: 30,
+                startAngle:  7*Math.PI/6,
+                minScale: -5,
+                maxScale: 5,
+                durationTime: 1000
+            };
+
+            let test_config = {
+                parent: '#drawing_region_test',
+                origin: [200, 200],
+                width: 400,
+                height: 400,
+                scale: 30,
+                startAngle:  7*Math.PI/6,
+                minScale: -5,
+                maxScale: 5,
+                durationTime: 1000
+            };
+
+            let add_config = {
+                parent: '#drawing_region_add',
+                origin: [200, 200],
+                width: 400,
+                height: 400,
+                scale: 30,
+                startAngle:  7*Math.PI/6,
+                minScale: -5,
+                maxScale: 5,
+                durationTime: 1000
+            };
+
+            const train_3d_scatter_plot = new _3dScatterPlot( train_config, train_data );
+            const test_3d_scatter_plot = new _3dScatterPlot( test_config, test_data );
+            const add_3d_scatter_plot = new _3dScatterPlot( add_config, add_data );
+            train_3d_scatter_plot.update();
+            test_3d_scatter_plot.update();
+            add_3d_scatter_plot.update();
+        }
     });

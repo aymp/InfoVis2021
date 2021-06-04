@@ -15,7 +15,7 @@ button {
 </style>
 <button>update</button>
 <script>
-    var origin = [480, 300], j = 10, scale = 40, scatter = [], yLine = [], xLine = [], zLine = [], xGrid = [], beta = 0, alpha = 0, key = function(d){ return d.id; }, startAngle = 3*Math.PI/4;
+    var origin = [480, 300], j = 10, scale = 40, scatter = [], yLine = [], xLine = [], zLine = [], xGrid = [], beta = 0, alpha = 0, key = function(d){ return d.id; }, startAngle = 7*Math.PI/6;
     var svg    = d3.select('svg').call(d3.drag().on('drag', dragged).on('start', dragStart).on('end', dragEnd)).append('g');
     //var color  = d3.scaleOrdinal(d3.schemeCategory20);
     /*var color  = d3.scaleLinear()

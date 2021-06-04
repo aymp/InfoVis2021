@@ -5,7 +5,7 @@
 <script src="https://d3js.org/d3-interpolate.v1.min.js"></script>
 <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
 <body>
-<svg width="960" height="500"></svg>
+<svg width="500" height="500"></svg>
 <style type="text/css">
 button {
     position: absolute;
@@ -15,21 +15,11 @@ button {
 </style>
 <button>update</button>
 <script>
-    var origin = [480, 300], j = 10, scale = 40, scatter = [], yLine = [], xLine = [], zLine = [], xGrid = [], beta = 0, alpha = 0, key = function(d){ return d.id; }, startAngle = 3*Math.PI/4;
+    var origin = [250, 250], scale = 40, scatter = [], yLine = [], xLine = [], zLine = [], beta = 0, alpha = 0, startAngle = 7*Math.PI/6, minScale = -5, maxScale = 5;
     var svg    = d3.select('svg').call(d3.drag().on('drag', dragged).on('start', dragStart).on('end', dragEnd)).append('g');
     //var color  = d3.scaleOrdinal(d3.schemeCategory20);
-    /*var color  = d3.scaleLinear()
-        .domain([0,5])
-        .range(["red","blue"])*/
     var color = d3.schemeSet2;
     var mx, my, mouseX, mouseY;
-
-    var grid3d = d3._3d()
-        .shape('GRID', 11)
-        .origin(origin)
-        .rotateY( startAngle)
-        .rotateX(-startAngle)
-        .scale(scale);
 
     var point3d = d3._3d()
         .x(function(d){ return d.x; })
@@ -63,50 +53,31 @@ button {
 
     function processData(data, tt){
 
-        /* ----------- GRID ----------- */
-        /*
-
-        var xGrid = svg.selectAll('path.grid').data(data[0], key);
-
-        xGrid
-            .enter()
-            .append('path')
-            .attr('class', '_3d grid')
-            .merge(xGrid)
-            .attr('stroke', 'black')
-            .attr('stroke-width', 0.3)
-            //.attr('fill', function(d){ return d.ccw ? 'lightgrey' : 'white'; })
-            .attr('fill', 'white')
-            .attr('fill-opacity', 0.9)
-            .attr('d', grid3d.draw);
-
-        xGrid.exit().remove();*/
-
         /* ----------- POINTS ----------- */
 
-        var points = svg.selectAll('circle').data(data[1], key);
+        var points = svg.selectAll('circle').data(data[0]);
 
         points
             .enter()
             .append('circle')
             .attr('class', '_3d')
             .attr('opacity', 0)
-            .attr('cx', posPointX)
-            .attr('cy', posPointY)
+            .attr('cx', function(d){ return d.projected.x; })
+            .attr('cy', function(d){ return d.projected.y; })
             .merge(points)
             .transition().duration(tt)
             .attr('r', 3)
-            .attr('stroke', function(d){ return d3.color(color[d.id]).darker(3); })
-            .attr('fill', function(d){ return color[d.id]; })
+            .attr('stroke', function(d){ return d3.color(color[d.label]).darker(3); })
+            .attr('fill', function(d){ return color[d.label]; })
             .attr('opacity', 1)
-            .attr('cx', posPointX)
-            .attr('cy', posPointY);
+            .attr('cx', function(d){ return d.projected.x; })
+            .attr('cy', function(d){ return d.projected.y; });
 
         points.exit().remove();
 
         /* ----------- x-Scale ----------- */
 
-        var xScale = svg.selectAll('path.xScale').data(data[2]);
+        var xScale = svg.selectAll('path.xScale').data(data[1]);
         xScale
             .enter()
             .append('path')
@@ -120,7 +91,7 @@ button {
 
         /* ----------- y-Scale ----------- */
 
-        var yScale = svg.selectAll('path.yScale').data(data[3]);
+        var yScale = svg.selectAll('path.yScale').data(data[2]);
 
         yScale
             .enter()
@@ -135,7 +106,7 @@ button {
 
         /* ----------- z-Scale ----------- */
 
-        var zScale = svg.selectAll('path.zScale').data(data[4]);
+        var zScale = svg.selectAll('path.zScale').data(data[3]);
 
         zScale
             .enter()
@@ -150,7 +121,7 @@ button {
 
         /* ----------- x-Scale Text ----------- */
 
-        var xText = svg.selectAll('text.xText').data(data[2][0]);
+        var xText = svg.selectAll('text.xText').data(data[1][0]);
 
         xText
             .enter()
@@ -171,7 +142,7 @@ button {
 
         /* ----------- y-Scale Text ----------- */
 
-        var yText = svg.selectAll('text.yText').data(data[3][0]);
+        var yText = svg.selectAll('text.yText').data(data[2][0]);
 
         yText
             .enter()
@@ -192,7 +163,7 @@ button {
 
         /* ----------- z-Scale Text ----------- */
 
-        var zText = svg.selectAll('text.zText').data(data[4][0]);
+        var zText = svg.selectAll('text.zText').data(data[3][0]);
 
         zText
             .enter()
@@ -224,24 +195,15 @@ button {
         
         d3.csv("https://aymp.github.io/InfoVis2021/FinalTask/additional.csv", function(error, data) {
             if (error) throw error;
-            var cnt = 0;
-            xGrid = [], scatter = [], xLine = [], yLine = [], zLine = [];
-            for(var z = -5; z < 6; z++){
-                for(var x = -5; x < 6; x++){
-                    xGrid.push([x, -0, z]);
-                    //scatter.push({x: x, y: -5, z: z, id: 'point_' + cnt++});
-                }
-            }
-            scatter = [];
+            scatter = [], xLine = [], yLine = [], zLine = [];
             //data.forEach(function(d){ scatter.push( {x: d.x, y: d.y, z: d.z, id: 'point_'+cnt++} ) })
-            data.forEach(function(d){ scatter.push( {x: d.x, y: d.y, z: d.z, id: +d.pred_label} ) })
+            data.forEach(function(d){ scatter.push( {x: d.x, y: d.y, z: d.z, label: +d.pred_label} ) })
 
-            d3.range(-5, 6, 1).forEach(function(d){ xLine.push([d, 0, 0]); });
-            d3.range(-5, 6, 1).forEach(function(d){ yLine.push([0, d, 0]); });
-            d3.range(-5, 6, 1).forEach(function(d){ zLine.push([0, 0, d]); });
+            d3.range(minScale, maxScale+1, 1).forEach(function(d){ xLine.push([d, 0, 0]); });
+            d3.range(minScale, maxScale+1, 1).forEach(function(d){ yLine.push([0, d, 0]); });
+            d3.range(minScale, maxScale+1, 1).forEach(function(d){ zLine.push([0, 0, d]); });
 
             var data = [
-                grid3d(xGrid),
                 point3d(scatter),
                 xScale3d([xLine]),
                 yScale3d([yLine]),
@@ -249,34 +211,6 @@ button {
             ];
             processData(data, 1000);
         })
-        /*
-        var cnt = 0;
-        xGrid = [], scatter = [], yLine = [];
-        for(var z = 0; z < 5; z++){
-            for(var x = 0; x < 4; x++){
-                xGrid.push([x, -0, z]);
-                scatter.push({x: x, y: -5, z: z, id: 'point_' + cnt++});
-            }
-        }
-        
-        scatter = [];
-        d3.csv("https://aymp.github.io/InfoVis2021/FinalTask/latent_space.csv", function(data) {
-            var cnt = 0;
-            scatter = [];
-            data.forEach(function(d){ scatter.push( {x: d.x, y: d.y, z: d.z, id: 'point_'+cnt++} ) })
-            console.log(scatter)
-        });
-        console.log(scatter)
-
-
-        d3.range(-1, 5, 1).forEach(function(d){ yLine.push([0, d, 0]); });
-
-        var data = [
-            grid3d(xGrid),
-            point3d(scatter),
-            yScale3d([yLine])
-        ];
-        processData(data, 1000);*/
     }
 
     function dragStart(){
@@ -290,7 +224,6 @@ button {
         beta   = (d3.event.x - mx + mouseX) * Math.PI / 230 ;
         alpha  = (d3.event.y - my + mouseY) * Math.PI / 230  * (-1);
         var data = [
-             grid3d.rotateY(beta + startAngle).rotateX(alpha - startAngle)(xGrid),
             point3d.rotateY(beta + startAngle).rotateX(alpha - startAngle)(scatter),
             xScale3d.rotateY(beta + startAngle).rotateX(alpha - startAngle)([xLine]),
             yScale3d.rotateY(beta + startAngle).rotateX(alpha - startAngle)([yLine]),
