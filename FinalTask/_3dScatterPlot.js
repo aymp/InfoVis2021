@@ -10,7 +10,8 @@ class _3dScatterPlot {
             startAngle: config.startAngle || 7*Math.PI/6,
             minScale: config.minScale || -5,
             maxScale: config.maxScale ||  5,
-            durationTime: config.durationTime || 1000
+            durationTime: config.durationTime || 1000,
+            class: config.class || '_3d'
         }
         this.data = data;
         this.init();
@@ -34,6 +35,10 @@ class _3dScatterPlot {
         self.svg = d3.select( self.config.parent )
             .attr('width', self.config.width)
             .attr('height', self.config.height)
+            //.call(d3.drag()
+            //    .on('drag', self.dragged)
+            //    .on('start', self.dragStart)
+            //    .on('end', self.dragEnd))
             .append('g');
 
         self.point3d = d3._3d()
@@ -78,14 +83,10 @@ class _3dScatterPlot {
             self.yScale3d([self.yLine]),
             self.zScale3d([self.zLine])
         ];
+        //console.log(self.config)
     }
 
-    update() {
-        let self = this;
-        self.render();
-    }
-
-    render() {
+    render(tt) {
         let self = this;
 
         /* ----------- POINTS ----------- */
@@ -95,12 +96,12 @@ class _3dScatterPlot {
         points
             .enter()
             .append('circle')
-            .attr('class', '_3d')
+            .attr('class', self.config.class + '_3d')
             .attr('opacity', 0)
             .attr('cx', function(d){ return d.projected.x; })
             .attr('cy', function(d){ return d.projected.y; })
             .merge(points)
-            .transition().duration(self.config.durationTime)
+            .transition().duration(tt)
             .attr('r', 3)
             .attr('stroke', function(d){ return d3.color(self.color[d.label]).darker(3); })
             .attr('fill', function(d){ return self.color[d.label]; })
@@ -117,7 +118,7 @@ class _3dScatterPlot {
         xScale
             .enter()
             .append('path')
-            .attr('class', '_3d xScale')
+            .attr('class', self.config.class + '_3d xScale')
             .merge(xScale)
             .attr('stroke', 'red')
             .attr('stroke-width', .5)
@@ -132,7 +133,7 @@ class _3dScatterPlot {
         yScale
             .enter()
             .append('path')
-            .attr('class', '_3d yScale')
+            .attr('class', self.config.class + '_3d yScale')
             .merge(yScale)
             .attr('stroke', 'green')
             .attr('stroke-width', .5)
@@ -147,7 +148,7 @@ class _3dScatterPlot {
         zScale
             .enter()
             .append('path')
-            .attr('class', '_3d zScale')
+            .attr('class', self.config.class + '_3d zScale')
             .merge(zScale)
             .attr('stroke', 'blue')
             .attr('stroke-width', .5)
@@ -162,7 +163,7 @@ class _3dScatterPlot {
         xText
             .enter()
             .append('text')
-            .attr('class', '_3d xText')
+            .attr('class', self.config.class + '_3d xText')
             .attr('dx', '.3em')
             .merge(xText)
             .each(function(d){
@@ -174,7 +175,7 @@ class _3dScatterPlot {
 
         xText.exit().remove();
 
-        d3.selectAll('._3d').sort(d3._3d().sort);
+        d3.selectAll(self.config.class + '._3d').sort(d3._3d().sort);
 
         /* ----------- y-Scale Text ----------- */
 
@@ -183,7 +184,7 @@ class _3dScatterPlot {
         yText
             .enter()
             .append('text')
-            .attr('class', '_3d yText')
+            .attr('class', self.config.class + '_3d yText')
             .attr('dx', '.3em')
             .merge(yText)
             .each(function(d){
@@ -195,7 +196,7 @@ class _3dScatterPlot {
 
         yText.exit().remove();
 
-        d3.selectAll('._3d').sort(d3._3d().sort);
+        d3.selectAll(self.config.class + '._3d').sort(d3._3d().sort);
 
         /* ----------- z-Scale Text ----------- */
 
@@ -204,7 +205,7 @@ class _3dScatterPlot {
         zText
             .enter()
             .append('text')
-            .attr('class', '_3d zText')
+            .attr('class', self.config.class + '_3d zText')
             .attr('dx', '.3em')
             .merge(zText)
             .each(function(d){
@@ -216,27 +217,32 @@ class _3dScatterPlot {
 
         xText.exit().remove();
 
-        d3.selectAll('._3d').sort(d3._3d().sort);
+        d3.selectAll(self.config.class + '._3d').sort(d3._3d().sort);
+        //console.log(self.config)
+
     }
 
     dragStart() {
         let self = this;
         self.mx = d3.event.x;
         self.my = d3.event.y;
+        console.log(self.config)
     }
 
     dragged() {
         let self = this;
+        console.log(self.config)
         //mouseX = mouseX || 0;
         //mouseY = mouseY || 0;
         self.beta   = (d3.event.x - self.mx + self.mouseX) * Math.PI / 230 ;
         self.alpha  = (d3.event.y - self.my + self.mouseY) * Math.PI / 230  * (-1);
         self.data = [
-             grid3d.rotateY(self.beta + self.config.startAngle).rotateX(self.alpha - self.config.startAngle)(xGrid),
-            point3d.rotateY(self.beta + self.config.startAngle).rotateX(self.alpha - self.config.startAngle)(scatter),
-            yScale3d.rotateY(self.beta + self.config.startAngle).rotateX(self.alpha - self.config.startAngle)([yLine]),
+            self.point3d.rotateY(self.beta + self.config.startAngle).rotateX(self.alpha - self.config.startAngle)(self.scatter),
+            self.xScale3d.rotateY(self.beta + self.config.startAngle).rotateX(self.alpha - self.config.startAngle)([self.xLine]),
+            self.yScale3d.rotateY(self.beta + self.config.startAngle).rotateX(self.alpha - self.config.startAngle)([self.yLine]),
+            self.zScale3d.rotateY(self.beta + self.config.startAngle).rotateX(self.alpha - self.config.startAngle)([self.zLine]),
         ];
-        update(self.data, 0);
+        self.update();
     }
 
     dragEnd() {
