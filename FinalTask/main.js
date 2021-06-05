@@ -53,6 +53,39 @@ d3.queue()
             test_3d_scatter_plot.render(test_3d_scatter_plot.config.durationTime);
             add_3d_scatter_plot.render(add_3d_scatter_plot.config.durationTime);
 
+            /* ----------- Legend ----------- */
+            // 参考：https://www.d3-graph-gallery.com/graph/custom_legend.html#cat2
+            let legend_area = d3.select('#legend');
+            let keys = [0,1,2,3,4];
+            let color = d3.schemeSet2;
+            let size = 20;
+            // Add one dot in the legend for each name.
+            legend_area.selectAll("mydots")
+                .data(keys)
+                .enter()
+                .append("rect")
+                    .attr("x", function(d,i){ return 40 + i*(size+200)})
+                    .attr("y", 30)
+                    .attr("width", size)
+                    .attr("height", size)
+                    .attr('stroke', function(d){ return d3.color(color[d]).darker(3) })
+                    .style("fill", function(d){ return color[d]})
+            
+            // Add one dot in the legend for each name.
+            legend_area.selectAll("mylabels")
+                .data(keys)
+                .enter()
+                .append("text")
+                    .attr("x", function(d,i){ return 65 + i*(size+200)})
+                    .attr("y", 41)
+                    .style("fill", 'black')
+                    .text(function(d){ return 'Predicted to be Subject ' +d})
+                    .attr("text-anchor", "left")
+                    .style("alignment-baseline", "middle")
+
+
+
+
             /* ----------- Reset ----------- */
             d3.selectAll('button').on('click', function() {
                 d3.selectAll('g').remove();
