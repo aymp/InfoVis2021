@@ -2,8 +2,9 @@ d3.queue()
     .defer(d3.csv, "https://aymp.github.io/InfoVis2021/FinalTask/latent_space.csv")
     .defer(d3.csv, "https://aymp.github.io/InfoVis2021/FinalTask/test.csv")
     .defer(d3.csv, "https://aymp.github.io/InfoVis2021/FinalTask/additional.csv")
-    .defer(d3.csv, "https://aymp.github.io/InfoVis2021/FinalTask/trained_centroid.csv")
-    .await(function(error, train_data, test_data, add_data, centroid_data) {
+    //.defer(d3.csv, "https://aymp.github.io/InfoVis2021/FinalTask/trained_centroid.csv")
+    //.await(function(error, train_data, test_data, add_data, centroid_data) {
+    .await(function(error, train_data, test_data, add_data) {
         if (error) {
             console.error('Oh dear, something went wrong: ' + error);
         }
