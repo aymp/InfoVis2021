@@ -1,4 +1,4 @@
-class _3dScatterPlot {
+class my3dScatterPlot {
 
     constructor( config, data ) {
         this.config = {
