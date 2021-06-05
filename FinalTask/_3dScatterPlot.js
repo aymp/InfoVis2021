@@ -14,6 +14,7 @@ class _3dScatterPlot {
             class: config.class || '_3d'
         }
         this.data = data;
+        this.init()
     }
 
     init() {
@@ -107,7 +108,7 @@ class _3dScatterPlot {
         points
             .on('mouseover',function(d) {
                 let selected_label = d.label;
-                console.log(selected_label);
+                //console.log(selected_label);
                 d3.selectAll('circle')
                     .transition()
                     .duration(100)
