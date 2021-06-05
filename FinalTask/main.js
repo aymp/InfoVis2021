@@ -2,7 +2,8 @@ d3.queue()
     .defer(d3.csv, "https://aymp.github.io/InfoVis2021/FinalTask/latent_space.csv")
     .defer(d3.csv, "https://aymp.github.io/InfoVis2021/FinalTask/test.csv")
     .defer(d3.csv, "https://aymp.github.io/InfoVis2021/FinalTask/additional.csv")
-    .await(function(error, train_data, test_data, add_data) {
+    .defer(d3.csv, "https://aymp.github.io/InfoVis2021/FinalTask/trained_centroid.csv")
+    .await(function(error, train_data, test_data, add_data, centroid_data) {
         if (error) {
             console.error('Oh dear, something went wrong: ' + error);
         }
@@ -46,9 +47,9 @@ d3.queue()
                 class: 'add'
             };
 
-            train_3d_scatter_plot = new _3dScatterPlot( train_config, train_data );
-            test_3d_scatter_plot = new _3dScatterPlot( test_config, test_data );
-            add_3d_scatter_plot = new _3dScatterPlot( add_config, add_data );
+            train_3d_scatter_plot = new my3dScatterPlot( train_config, train_data );
+            test_3d_scatter_plot = new my3dScatterPlot( test_config, test_data );
+            add_3d_scatter_plot = new my3dScatterPlot( add_config, add_data );
             train_3d_scatter_plot.render(train_3d_scatter_plot.config.durationTime);
             test_3d_scatter_plot.render(test_3d_scatter_plot.config.durationTime);
             add_3d_scatter_plot.render(add_3d_scatter_plot.config.durationTime);
@@ -89,9 +90,9 @@ d3.queue()
             /* ----------- Reset ----------- */
             d3.selectAll('button').on('click', function() {
                 d3.selectAll('g').remove();
-                train_3d_scatter_plot = new _3dScatterPlot( train_config, train_data );
-                test_3d_scatter_plot = new _3dScatterPlot( test_config, test_data );
-                add_3d_scatter_plot = new _3dScatterPlot( add_config, add_data );
+                train_3d_scatter_plot = new my3dScatterPlot( train_config, train_data );
+                test_3d_scatter_plot = new my3dScatterPlot( test_config, test_data );
+                add_3d_scatter_plot = new my3dScatterPlot( add_config, add_data );
                 train_3d_scatter_plot.render(train_3d_scatter_plot.config.durationTime);
                 test_3d_scatter_plot.render(test_3d_scatter_plot.config.durationTime);
                 add_3d_scatter_plot.render(add_3d_scatter_plot.config.durationTime);
