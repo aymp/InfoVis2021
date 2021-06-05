@@ -46,34 +46,118 @@ d3.queue()
                 class: 'add'
             };
 
-            const train_3d_scatter_plot = new _3dScatterPlot( train_config, train_data );
-            const test_3d_scatter_plot = new _3dScatterPlot( test_config, test_data );
-            const add_3d_scatter_plot = new _3dScatterPlot( add_config, add_data );
-            train_3d_scatter_plot.init()
-            test_3d_scatter_plot.init()
-            add_3d_scatter_plot.init()
+            train_3d_scatter_plot = new _3dScatterPlot( train_config, train_data );
+            test_3d_scatter_plot = new _3dScatterPlot( test_config, test_data );
+            add_3d_scatter_plot = new _3dScatterPlot( add_config, add_data );
             train_3d_scatter_plot.render(train_3d_scatter_plot.config.durationTime);
             test_3d_scatter_plot.render(test_3d_scatter_plot.config.durationTime);
             add_3d_scatter_plot.render(add_3d_scatter_plot.config.durationTime);
 
-            // インタラクティブ
+            /* ----------- Reset ----------- */
+            d3.selectAll('button').on('click', function() {
+                d3.selectAll('g').remove();
+                train_3d_scatter_plot = new _3dScatterPlot( train_config, train_data );
+                test_3d_scatter_plot = new _3dScatterPlot( test_config, test_data );
+                add_3d_scatter_plot = new _3dScatterPlot( add_config, add_data );
+                train_3d_scatter_plot.render(train_3d_scatter_plot.config.durationTime);
+                test_3d_scatter_plot.render(test_3d_scatter_plot.config.durationTime);
+                add_3d_scatter_plot.render(add_3d_scatter_plot.config.durationTime);
+            });
+
+            /* ----------- Sync ----------- */
+            syncCheck = document.getElementById('sync');
+            syncCheck.checked = true;
+            
             d3.select('#drawing_region_train')
                 .call(d3.drag()
-                    .on('drag', draggedTrain)
-                    .on('start', dragStartTrain)
-                    .on('end', dragEndTrain))
+                    .on('drag', draggedTrainOrAll)
+                    .on('start', dragStartTrainOrAll)
+                    .on('end', dragEndTrainOrAll))
 
             d3.select('#drawing_region_test')
                 .call(d3.drag()
-                    .on('drag', draggedTest)
-                    .on('start', dragStartTest)
-                    .on('end', dragEndTest))
+                    .on('drag', draggedTestOrAll)
+                    .on('start', dragStartTestOrAll)
+                    .on('end', dragEndTestOrAll))
 
             d3.select('#drawing_region_add')
                 .call(d3.drag()
-                    .on('drag', draggedAdd)
-                    .on('start', dragStartAdd)
-                    .on('end', dragEndAdd))
+                    .on('drag', draggedAddOrAll)
+                    .on('start', dragStartAddOrAll)
+                    .on('end', dragEndAddOrAll))
+            
+            /* ----------- 以下、回転処理に関する関数(冗長だが今回はこれで) ----------- */
+            function dragStartTrainOrAll() {
+                if (syncCheck.checked) {
+                    dragStartAll();
+                } else {
+                    dragStartTrain();
+                }
+            }
+
+            function draggedTrainOrAll() {
+                if (syncCheck.checked) {
+                    draggedAll();
+                } else {
+                    draggedTrain();
+                }
+            }
+
+            function dragEndTrainOrAll() {
+                if (syncCheck.checked) {
+                    dragEndAll();
+                } else {
+                    dragEndTrain();
+                }
+            }
+
+            function dragStartTestOrAll() {
+                if (syncCheck.checked) {
+                    dragStartAll();
+                } else {
+                    dragStartTest();
+                }
+            }
+
+            function draggedTestOrAll() {
+                if (syncCheck.checked) {
+                    draggedAll();
+                } else {
+                    draggedTest();
+                }
+            }
+
+            function dragEndTestOrAll() {
+                if (syncCheck.checked) {
+                    dragEndAll();
+                } else {
+                    dragEndTest();
+                }
+            }
+
+            function dragStartAddOrAll() {
+                if (syncCheck.checked) {
+                    dragStartAll();
+                } else {
+                    dragStartAdd();
+                }
+            }
+
+            function draggedAddOrAll() {
+                if (syncCheck.checked) {
+                    draggedAll();
+                } else {
+                    draggedAdd();
+                }
+            }
+
+            function dragEndAddOrAll() {
+                if (syncCheck.checked) {
+                    dragEndAll();
+                } else {
+                    dragEndAdd();
+                }
+            }
 
             function dragStartTrain() {
                 train_3d_scatter_plot.mx = d3.event.x;
@@ -139,6 +223,24 @@ d3.queue()
             function dragEndAdd() {
                 add_3d_scatter_plot.mouseX = d3.event.x - add_3d_scatter_plot.mx + add_3d_scatter_plot.mouseX;
                 add_3d_scatter_plot.mouseY = d3.event.y - add_3d_scatter_plot.my + add_3d_scatter_plot.mouseY;
+            }
+
+            function dragStartAll() {
+                dragStartTrain();
+                dragStartTest();
+                dragStartAdd();
+            }
+
+            function draggedAll() {
+                draggedTrain();
+                draggedTest();
+                draggedAdd();
+            }
+
+            function dragEndAll() {
+                dragEndTrain();
+                dragEndTest();
+                dragEndAdd();
             }
         }
     });
