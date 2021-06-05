@@ -14,7 +14,6 @@ class _3dScatterPlot {
             class: config.class || '_3d'
         }
         this.data = data;
-        this.init();
     }
 
     init() {
@@ -35,10 +34,6 @@ class _3dScatterPlot {
         self.svg = d3.select( self.config.parent )
             .attr('width', self.config.width)
             .attr('height', self.config.height)
-            //.call(d3.drag()
-            //    .on('drag', self.dragged)
-            //    .on('start', self.dragStart)
-            //    .on('end', self.dragEnd))
             .append('g');
 
         self.point3d = d3._3d()
@@ -83,7 +78,6 @@ class _3dScatterPlot {
             self.yScale3d([self.yLine]),
             self.zScale3d([self.zLine])
         ];
-        //console.log(self.config)
     }
 
     render(tt) {
@@ -96,7 +90,8 @@ class _3dScatterPlot {
         points
             .enter()
             .append('circle')
-            .attr('class', self.config.class + '_3d')
+            .attr('class', function(d){ return self.config.class + ' _3d_' + d.label; })
+            //.append( function(d){ return self.config.class + '_3d_' + d.label; })
             .attr('opacity', 0)
             .attr('cx', function(d){ return d.projected.x; })
             .attr('cy', function(d){ return d.projected.y; })
@@ -108,6 +103,26 @@ class _3dScatterPlot {
             .attr('opacity', 1)
             .attr('cx', function(d){ return d.projected.x; })
             .attr('cy', function(d){ return d.projected.y; });
+
+        points
+            .on('mouseover',function(d) {
+                let selected_label = d.label;
+                console.log(selected_label);
+                d3.selectAll('circle')
+                    .transition()
+                    .duration(100)
+                    .attr('r', '0');
+                d3.selectAll('._3d_'+selected_label)
+                    .transition()
+                    .duration(100)
+                    .style('fill', self.color[selected_label])
+                    .attr('r', '4');})
+            .on('mouseleave', function() {
+                d3.selectAll('circle')
+                    .transition()
+                    .duration(100)
+                    .attr('r', '3');
+            });
 
         points.exit().remove();
 
@@ -218,36 +233,5 @@ class _3dScatterPlot {
         xText.exit().remove();
 
         d3.selectAll(self.config.class + '._3d').sort(d3._3d().sort);
-        //console.log(self.config)
-
-    }
-
-    dragStart() {
-        let self = this;
-        self.mx = d3.event.x;
-        self.my = d3.event.y;
-        console.log(self.config)
-    }
-
-    dragged() {
-        let self = this;
-        console.log(self.config)
-        //mouseX = mouseX || 0;
-        //mouseY = mouseY || 0;
-        self.beta   = (d3.event.x - self.mx + self.mouseX) * Math.PI / 230 ;
-        self.alpha  = (d3.event.y - self.my + self.mouseY) * Math.PI / 230  * (-1);
-        self.data = [
-            self.point3d.rotateY(self.beta + self.config.startAngle).rotateX(self.alpha - self.config.startAngle)(self.scatter),
-            self.xScale3d.rotateY(self.beta + self.config.startAngle).rotateX(self.alpha - self.config.startAngle)([self.xLine]),
-            self.yScale3d.rotateY(self.beta + self.config.startAngle).rotateX(self.alpha - self.config.startAngle)([self.yLine]),
-            self.zScale3d.rotateY(self.beta + self.config.startAngle).rotateX(self.alpha - self.config.startAngle)([self.zLine]),
-        ];
-        self.update();
-    }
-
-    dragEnd() {
-        let self = this;
-        self.mouseX = d3.event.x - self.mx + self.mouseX;
-        self.mouseY = d3.event.y - self.my + self.mouseY;
     }
 }

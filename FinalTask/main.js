@@ -13,7 +13,7 @@ d3.queue()
                 width: 400,
                 height: 400,
                 scale: 30,
-                startAngle:  7*Math.PI/6,
+                startAngle: 7*Math.PI/6,
                 minScale: -5,
                 maxScale: 5,
                 durationTime: 1000,
@@ -26,7 +26,7 @@ d3.queue()
                 width: 400,
                 height: 400,
                 scale: 30,
-                startAngle:  7*Math.PI/6,
+                startAngle: 7*Math.PI/6,
                 minScale: -5,
                 maxScale: 5,
                 durationTime: 1000,
@@ -39,7 +39,7 @@ d3.queue()
                 width: 400,
                 height: 400,
                 scale: 30,
-                startAngle:  7*Math.PI/6,
+                startAngle: 7*Math.PI/6,
                 minScale: -5,
                 maxScale: 5,
                 durationTime: 1000,
@@ -49,10 +49,12 @@ d3.queue()
             const train_3d_scatter_plot = new _3dScatterPlot( train_config, train_data );
             const test_3d_scatter_plot = new _3dScatterPlot( test_config, test_data );
             const add_3d_scatter_plot = new _3dScatterPlot( add_config, add_data );
+            train_3d_scatter_plot.init()
+            test_3d_scatter_plot.init()
+            add_3d_scatter_plot.init()
             train_3d_scatter_plot.render(train_3d_scatter_plot.config.durationTime);
             test_3d_scatter_plot.render(test_3d_scatter_plot.config.durationTime);
             add_3d_scatter_plot.render(add_3d_scatter_plot.config.durationTime);
-            //console.log(train_3d_scatter_plot.config)
 
             // インタラクティブ
             d3.select('#drawing_region_train')
