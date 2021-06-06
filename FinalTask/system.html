@@ -1,244 +1,43 @@
-<!DOCTYPE html>
-<meta charset="utf-8">
-<script src="https://unpkg.com/d3-3d/build/d3-3d.min.js"></script>
-<script src="https://d3js.org/d3.v4.min.js"></script>
-<script src="https://d3js.org/d3-interpolate.v1.min.js"></script>
-<script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
-<body>
-<svg width="500" height="500"></svg>
-<style type="text/css">
-button {
-    position: absolute;
-    right: 10px;
-    top: 10px;
-}
-</style>
-<button>update</button>
-<script>
-    var origin = [250, 250], scale = 40, scatter = [], yLine = [], xLine = [], zLine = [], beta = 0, alpha = 0, startAngle = 7*Math.PI/6, minScale = -5, maxScale = 5;
-    var svg    = d3.select('svg').call(d3.drag().on('drag', dragged).on('start', dragStart).on('end', dragEnd)).append('g');
-    //var color  = d3.scaleOrdinal(d3.schemeCategory20);
-    var color = d3.schemeSet2;
-    var mx, my, mouseX, mouseY;
-
-    var point3d = d3._3d()
-        .x(function(d){ return d.x; })
-        .y(function(d){ return d.y; })
-        .z(function(d){ return d.z; })
-        .origin(origin)
-        .rotateY( startAngle)
-        .rotateX(-startAngle)
-        .scale(scale);
-
-    var xScale3d = d3._3d()
-        .shape('LINE_STRIP')
-        .origin(origin)
-        .rotateY( startAngle)
-        .rotateX(-startAngle)
-        .scale(scale);
-
-    var yScale3d = d3._3d()
-        .shape('LINE_STRIP')
-        .origin(origin)
-        .rotateY( startAngle)
-        .rotateX(-startAngle)
-        .scale(scale);
-    
-    var zScale3d = d3._3d()
-        .shape('LINE_STRIP')
-        .origin(origin)
-        .rotateY( startAngle)
-        .rotateX(-startAngle)
-        .scale(scale);
-
-    function processData(data, tt){
-
-        /* ----------- POINTS ----------- */
-
-        var points = svg.selectAll('circle').data(data[0]);
-
-        points
-            .enter()
-            .append('circle')
-            .attr('class', '_3d')
-            .attr('opacity', 0)
-            .attr('cx', function(d){ return d.projected.x; })
-            .attr('cy', function(d){ return d.projected.y; })
-            .merge(points)
-            .transition().duration(tt)
-            .attr('r', 3)
-            .attr('stroke', function(d){ return d3.color(color[d.label]).darker(3); })
-            .attr('fill', function(d){ return color[d.label]; })
-            .attr('opacity', 1)
-            .attr('cx', function(d){ return d.projected.x; })
-            .attr('cy', function(d){ return d.projected.y; });
-
-        points.exit().remove();
-
-        /* ----------- x-Scale ----------- */
-
-        var xScale = svg.selectAll('path.xScale').data(data[1]);
-        xScale
-            .enter()
-            .append('path')
-            .attr('class', '_3d xScale')
-            .merge(xScale)
-            .attr('stroke', 'red')
-            .attr('stroke-width', .5)
-            .attr('d', xScale3d.draw);
-
-        xScale.exit().remove();
-
-        /* ----------- y-Scale ----------- */
-
-        var yScale = svg.selectAll('path.yScale').data(data[2]);
-
-        yScale
-            .enter()
-            .append('path')
-            .attr('class', '_3d yScale')
-            .merge(yScale)
-            .attr('stroke', 'green')
-            .attr('stroke-width', .5)
-            .attr('d', yScale3d.draw);
-
-        yScale.exit().remove();
-
-        /* ----------- z-Scale ----------- */
-
-        var zScale = svg.selectAll('path.zScale').data(data[3]);
-
-        zScale
-            .enter()
-            .append('path')
-            .attr('class', '_3d yScale')
-            .merge(zScale)
-            .attr('stroke', 'blue')
-            .attr('stroke-width', .5)
-            .attr('d', zScale3d.draw);
-
-        zScale.exit().remove();
-
-        /* ----------- x-Scale Text ----------- */
-
-        var xText = svg.selectAll('text.xText').data(data[1][0]);
-
-        xText
-            .enter()
-            .append('text')
-            .attr('class', '_3d xText')
-            .attr('dx', '.3em')
-            .merge(xText)
-            .each(function(d){
-                d.centroid = {x: d.rotated.x, y: d.rotated.y, z: d.rotated.z};
-            })
-            .attr('x', function(d){ return d.projected.x; })
-            .attr('y', function(d){ return d.projected.y; })
-            .text(function(d){ return d[0]; });
-
-        xText.exit().remove();
-
-        d3.selectAll('._3d').sort(d3._3d().sort);
-
-        /* ----------- y-Scale Text ----------- */
-
-        var yText = svg.selectAll('text.yText').data(data[2][0]);
-
-        yText
-            .enter()
-            .append('text')
-            .attr('class', '_3d yText')
-            .attr('dx', '.3em')
-            .merge(yText)
-            .each(function(d){
-                d.centroid = {x: d.rotated.x, y: d.rotated.y, z: d.rotated.z};
-            })
-            .attr('x', function(d){ return d.projected.x; })
-            .attr('y', function(d){ return d.projected.y; })
-            .text(function(d){ return d[1]; });
-
-        yText.exit().remove();
-
-        d3.selectAll('._3d').sort(d3._3d().sort);
-
-        /* ----------- z-Scale Text ----------- */
-
-        var zText = svg.selectAll('text.zText').data(data[3][0]);
-
-        zText
-            .enter()
-            .append('text')
-            .attr('class', '_3d zText')
-            .attr('dx', '.3em')
-            .merge(zText)
-            .each(function(d){
-                d.centroid = {x: d.rotated.x, y: d.rotated.y, z: d.rotated.z};
-            })
-            .attr('x', function(d){ return d.projected.x; })
-            .attr('y', function(d){ return d.projected.y; })
-            .text(function(d){ return d[2]; });
-
-        xText.exit().remove();
-
-        d3.selectAll('._3d').sort(d3._3d().sort);
-    }
-
-    function posPointX(d){
-        return d.projected.x;
-    }
-
-    function posPointY(d){
-        return d.projected.y;
-    }
-
-	function init(){
-        
-        d3.csv("https://aymp.github.io/InfoVis2021/FinalTask/additional.csv", function(error, data) {
-            if (error) throw error;
-            scatter = [], xLine = [], yLine = [], zLine = [];
-            //data.forEach(function(d){ scatter.push( {x: d.x, y: d.y, z: d.z, id: 'point_'+cnt++} ) })
-            data.forEach(function(d){ scatter.push( {x: d.x, y: d.y, z: d.z, label: +d.pred_label} ) })
-
-            d3.range(minScale, maxScale+1, 1).forEach(function(d){ xLine.push([d, 0, 0]); });
-            d3.range(minScale, maxScale+1, 1).forEach(function(d){ yLine.push([0, d, 0]); });
-            d3.range(minScale, maxScale+1, 1).forEach(function(d){ zLine.push([0, 0, d]); });
-
-            var data = [
-                point3d(scatter),
-                xScale3d([xLine]),
-                yScale3d([yLine]),
-                zScale3d([zLine])
-            ];
-            processData(data, 1000);
-        })
-    }
-
-    function dragStart(){
-        mx = d3.event.x;
-        my = d3.event.y;
-    }
-
-    function dragged(){
-        mouseX = mouseX || 0;
-        mouseY = mouseY || 0;
-        beta   = (d3.event.x - mx + mouseX) * Math.PI / 230 ;
-        alpha  = (d3.event.y - my + mouseY) * Math.PI / 230  * (-1);
-        var data = [
-            point3d.rotateY(beta + startAngle).rotateX(alpha - startAngle)(scatter),
-            xScale3d.rotateY(beta + startAngle).rotateX(alpha - startAngle)([xLine]),
-            yScale3d.rotateY(beta + startAngle).rotateX(alpha - startAngle)([yLine]),
-            zScale3d.rotateY(beta + startAngle).rotateX(alpha - startAngle)([zLine]),
-        ];
-        processData(data, 0);
-    }
-
-    function dragEnd(){
-        mouseX = d3.event.x - mx + mouseX;
-        mouseY = d3.event.y - my + mouseY;
-    }
-
-    d3.selectAll('button').on('click', init);
-
-    init();
-</script>
-</body>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>FINAL TASK</title>
+        <style>
+            body {
+                font-family: system-ui;
+            }
+            .container {
+                display: flex;
+            }
+            .label_container {
+                display: flex;
+            }
+           </style>
+    </head>
+    <body>
+    <div id="tooltip"></div>
+    <div><svg id="title" height=80 width=1200></svg></div>
+    <div><svg id="legend" height=50 width=1200></svg></div>
+    <div class="container">
+        <div><svg id="drawing_region_train"></svg></div>
+        <div><svg id="drawing_region_test"></svg></div>
+        <div><svg id="drawing_region_add"></svg></div>
+    </div>
+    <div class="label_container">
+        <div><svg id = "train_label" height=40 width=400></svg></div>
+        <div><svg id = "test_label" height=40 width=400></svg></div>
+        <div><svg id = "add_label" height=40 width=400></svg></div>
+    </div>
+    <button id='resetButton'>reset</button>
+    <label><input type="checkbox" id="sync">Sync</label>
+    <label><input type="checkbox" id="threshold">Show Threshold</label>
+    <p>current threshold: <span id="current-value"></span></p>
+    <p><label>1.0<input type="range" id="radius" min="1" max="3" step="0.5" value="2">3.0</label></p>
+    <script src="https://unpkg.com/d3-3d/build/d3-3d.min.js"></script>
+	<script src="https://d3js.org/d3.v4.min.js"></script>
+    <script src="https://d3js.org/d3-interpolate.v1.min.js"></script>
+    <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+    <script src="my3dScatterPlot.js"></script>
+    <script src="main.js"></script>
+    </body>
+</html>
