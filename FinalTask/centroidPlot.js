@@ -1,6 +1,6 @@
-class my3dScatterPlot {
+class centroidPlot {
 
-    constructor( config, data, cent_data, threshold_value ) {
+    constructor( config, data ) {
         this.config = {
             parent: config.parent || '#drawing_region',
             origin: config.origin || [480, 300],
@@ -14,11 +14,10 @@ class my3dScatterPlot {
             class: config.class || '_3d'
         }
         this.data = data;
-        this.cent_data = cent_data;
-        this.init(threshold_value);
+        this.init()
     }
 
-    init(threshold) {
+    init() {
         let self = this;
 
         self.scatter = [];
@@ -32,7 +31,6 @@ class my3dScatterPlot {
         self.mouseX = 0;
         self.mouseY = 0;
         self.color = d3.schemeSet2;
-        self.threshold = threshold;
 
         self.svg = d3.select( self.config.parent )
             .attr('width', self.config.width)
@@ -69,21 +67,8 @@ class my3dScatterPlot {
             .rotateX(-self.config.startAngle)
             .scale(self.config.scale);
 
-        self.data.forEach(function(d){ self.scatter.push( {x: +d.x, y: +d.y, z: +d.z, label: +d.pred_label, body: 'main'} ) })
-        
-        self.cent_data.forEach(function(d){
-            for(let x = +d.cent_x-self.threshold; x <= +d.cent_x+self.threshold; x+= 0.2){
-                for(let z = +d.cent_z-self.threshold; z <= +d.cent_z+self.threshold; z+= 0.2){
-                    let disc = self.threshold**2-(x-d.cent_x)**2-(z-d.cent_z)**2;
-                    if(disc > 0){
-                        let y1 = +d.cent_y + Math.sqrt(disc);
-                        let y2 = +d.cent_y - Math.sqrt(disc);
-                        self.scatter.push( {x: x, y: +y1, z: z, label: +d.label, body: 'sub'} );
-                        self.scatter.push( {x: x, y: +y2, z: z, label: +d.label, body: 'sub'} );
-                    }
-                }
-            }
-        });
+        self.data.forEach(function(d){ self.scatter.push( {x: +d.x, y: +d.y, z: +d.z, label: +d.pred_label} ) })
+
         d3.range(self.config.minScale, self.config.maxScale+1, 1).forEach(function(d){ self.xLine.push([d, 0, 0]); });
         d3.range(self.config.minScale, self.config.maxScale+1, 1).forEach(function(d){ self.yLine.push([0, d, 0]); });
         d3.range(self.config.minScale, self.config.maxScale+1, 1).forEach(function(d){ self.zLine.push([0, 0, d]); });
@@ -92,63 +77,22 @@ class my3dScatterPlot {
             self.point3d(self.scatter),
             self.xScale3d([self.xLine]),
             self.yScale3d([self.yLine]),
-            self.zScale3d([self.zLine]),
+            self.zScale3d([self.zLine])
         ];
     }
 
-    update(tt, threshold_flag, threshold) {
+    render(tt) {
         let self = this;
-        self.threshold = threshold;
-        self.scatter = self.scatter.filter(function(elm){
-            return elm.body != 'sub'
-        })
-        self.cent_data.forEach(function(d){
-            for(let x = +d.cent_x-self.threshold; x <= +d.cent_x+self.threshold; x+= 0.2){
-                for(let z = +d.cent_z-self.threshold; z <= +d.cent_z+self.threshold; z+= 0.2){
-                    let disc = self.threshold**2-(x-d.cent_x)**2-(z-d.cent_z)**2;
-                    if(disc > 0){
-                        let y1 = +d.cent_y + Math.sqrt(disc);
-                        let y2 = +d.cent_y - Math.sqrt(disc);
-                        self.scatter.push( {x: x, y: +y1, z: z, label: +d.label, body: 'sub'} );
-                        self.scatter.push( {x: x, y: +y2, z: z, label: +d.label, body: 'sub'} );
-                    }
-                }
-            }
-        });
-        self.data = [
-            self.point3d(self.scatter),
-            self.xScale3d([self.xLine]),
-            self.yScale3d([self.yLine]),
-            self.zScale3d([self.zLine]),
-        ];
-        self.render(tt, threshold_flag);
-    }
 
-    render(tt, threshold_flag) {
-        let self = this;
+        /* ----------- POINTS ----------- */
 
         let points = self.svg.selectAll('circle').data(self.data[0]);
-        
+
         points
             .enter()
             .append('circle')
-            .attr('class', function(d){ return d.body+' '+self.config.class + ' _3d _' + d.label; });
-
-        if(threshold_flag){
-            d3.selectAll('circle.sub')
-                .attr('opacity', 0)
-                .attr('cx', function(d){ return d.projected.x; })
-                .attr('cy', function(d){ return d.projected.y; })
-                .merge(points)
-                .transition().duration(tt)
-                .attr('r', 1)
-                //.attr('stroke', function(d){ return d3.color(self.color[d.label]).darker(3); })
-                .attr('fill', function(d){ return self.color[d.label]; })
-                .attr('opacity', 0.5)
-                .attr('cx', function(d){ return d.projected.x; })
-                .attr('cy', function(d){ return d.projected.y; });
-        }
-        d3.selectAll('circle.main')            
+            .attr('class', function(d){ return self.config.class + ' _3d_' + d.label; })
+            //.append( function(d){ return self.config.class + '_3d_' + d.label; })
             .attr('opacity', 0)
             .attr('cx', function(d){ return d.projected.x; })
             .attr('cy', function(d){ return d.projected.y; })
@@ -164,36 +108,21 @@ class my3dScatterPlot {
         points
             .on('mouseover',function(d) {
                 let selected_label = d.label;
+                //console.log(selected_label);
                 d3.selectAll('circle')
                     .transition()
                     .duration(100)
                     .attr('r', '0');
-
-                d3.selectAll('circle.main._3d._'+selected_label)
+                d3.selectAll('._3d_'+selected_label)
                     .transition()
                     .duration(100)
-                    .attr('r', '4');
-
-                if(threshold_flag){
-                    d3.selectAll('circle.sub._'+selected_label)
-                        .transition()
-                        .duration(100)
-                        .attr('r', '1');
-                }
-            })
+                    .style('fill', self.color[selected_label])
+                    .attr('r', '4');})
             .on('mouseleave', function() {
-                d3.selectAll('circle.main')
+                d3.selectAll('circle')
                     .transition()
                     .duration(100)
-                    .attr('r', '3')
-
-                if(threshold_flag){
-                    d3.selectAll('circle.sub')
-                        .transition()
-                        .duration(100)
-                        .attr('r', '1');
-                };
-               
+                    .attr('r', '3');
             });
 
         points.exit().remove();
@@ -262,7 +191,7 @@ class my3dScatterPlot {
 
         xText.exit().remove();
 
-        //d3.selectAll(self.config.class + '._3d').sort(d3._3d().sort);
+        d3.selectAll(self.config.class + '._3d').sort(d3._3d().sort);
 
         /* ----------- y-Scale Text ----------- */
 
@@ -283,7 +212,7 @@ class my3dScatterPlot {
 
         yText.exit().remove();
 
-        //d3.selectAll(self.config.class + '._3d').sort(d3._3d().sort);
+        d3.selectAll(self.config.class + '._3d').sort(d3._3d().sort);
 
         /* ----------- z-Scale Text ----------- */
 
@@ -304,6 +233,6 @@ class my3dScatterPlot {
 
         xText.exit().remove();
 
-        //d3.selectAll(self.config.class + '._3d').sort(d3._3d().sort);
+        d3.selectAll(self.config.class + '._3d').sort(d3._3d().sort);
     }
 }

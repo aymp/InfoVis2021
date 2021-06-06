@@ -2,13 +2,53 @@ d3.queue()
     .defer(d3.csv, "https://aymp.github.io/InfoVis2021/FinalTask/latent_space.csv")
     .defer(d3.csv, "https://aymp.github.io/InfoVis2021/FinalTask/test.csv")
     .defer(d3.csv, "https://aymp.github.io/InfoVis2021/FinalTask/additional.csv")
-    //.defer(d3.csv, "https://aymp.github.io/InfoVis2021/FinalTask/trained_centroid.csv")
-    //.await(function(error, train_data, test_data, add_data, centroid_data) {
-    .await(function(error, train_data, test_data, add_data) {
+    .defer(d3.csv, "https://aymp.github.io/InfoVis2021/FinalTask/trained_centroid.csv")
+    .await(function(error, train_data, test_data, add_data, cent_data) {
+    //.await(function(error, train_data, test_data, add_data) {
         if (error) {
             console.error('Oh dear, something went wrong: ' + error);
         }
         else {
+            /* ----------- Appearance ----------- */
+            let thresholdCheck = document.getElementById('threshold');
+            let inputElem = document.getElementById('radius');
+            let currentValueElem = document.getElementById('current-value');
+            currentValueElem.innerText = inputElem.value;
+
+            d3.select('#title')
+                .append('text')
+                .attr('x', '600')
+                .attr('y', '60')
+                .attr('text-anchor', 'middle')
+                .attr('font-size', '40')
+                .attr('font-weight', 'bold')
+                .text('Plot of the 3D latent space of My CVAE (Conditional VAE)');
+            d3.select('#train_label')
+                .append('text')
+                .attr('x', '200')
+                .attr('y', '15')
+                .attr('text-anchor', 'middle')
+                .attr('font-size', '20')
+                .attr('font-weight', 'bold')
+                .text('(a) trained data');
+            d3.select('#test_label')
+                .append('text')
+                .attr('x', '200')
+                .attr('y', '15')
+                .attr('text-anchor', 'middle')
+                .attr('font-size', '20')
+                .attr('font-weight', 'bold')
+                .text('(b) test data of trained subjects');
+            d3.select('#add_label')
+                .append('text')
+                .attr('x', '200')
+                .attr('y', '15')
+                .attr('text-anchor', 'middle')
+                .attr('font-size', '20')
+                .attr('font-weight', 'bold')
+                .text('(c) a subject not included in the trained data');
+            
+
             let train_config = {
                 parent: '#drawing_region_train',
                 origin: [200, 200],
@@ -48,12 +88,21 @@ d3.queue()
                 class: 'add'
             };
 
-            train_3d_scatter_plot = new my3dScatterPlot( train_config, train_data );
-            test_3d_scatter_plot = new my3dScatterPlot( test_config, test_data );
-            add_3d_scatter_plot = new my3dScatterPlot( add_config, add_data );
-            train_3d_scatter_plot.render(train_3d_scatter_plot.config.durationTime);
-            test_3d_scatter_plot.render(test_3d_scatter_plot.config.durationTime);
-            add_3d_scatter_plot.render(add_3d_scatter_plot.config.durationTime);
+            train_3d_scatter_plot = new my3dScatterPlot( train_config, train_data, cent_data, +inputElem.value );
+            test_3d_scatter_plot = new my3dScatterPlot( test_config, test_data, cent_data, +inputElem.value );
+            add_3d_scatter_plot = new my3dScatterPlot( add_config, add_data, cent_data, +inputElem.value );
+            train_3d_scatter_plot.render(train_3d_scatter_plot.config.durationTime,thresholdCheck.checked);
+            test_3d_scatter_plot.render(test_3d_scatter_plot.config.durationTime,thresholdCheck.checked);
+            add_3d_scatter_plot.render(add_3d_scatter_plot.config.durationTime,thresholdCheck.checked);
+
+            /* ----------- Change Threshold ----------- */
+            inputElem.addEventListener('change', function(){
+                currentValueElem.innerText = inputElem.value;
+                d3.selectAll('circle.sub').remove();
+                train_3d_scatter_plot.update(train_3d_scatter_plot.config.durationTime,thresholdCheck.checked,+inputElem.value);
+                test_3d_scatter_plot.update(test_3d_scatter_plot.config.durationTime,thresholdCheck.checked,+inputElem.value);
+                add_3d_scatter_plot.update(add_3d_scatter_plot.config.durationTime,thresholdCheck.checked,+inputElem.value);
+            })
 
             /* ----------- Legend ----------- */
             // 参考：https://www.d3-graph-gallery.com/graph/custom_legend.html#cat2
@@ -85,18 +134,15 @@ d3.queue()
                     .attr("text-anchor", "left")
                     .style("alignment-baseline", "middle")
 
-
-
-
             /* ----------- Reset ----------- */
             d3.selectAll('button').on('click', function() {
                 d3.selectAll('g').remove();
-                train_3d_scatter_plot = new my3dScatterPlot( train_config, train_data );
-                test_3d_scatter_plot = new my3dScatterPlot( test_config, test_data );
-                add_3d_scatter_plot = new my3dScatterPlot( add_config, add_data );
-                train_3d_scatter_plot.render(train_3d_scatter_plot.config.durationTime);
-                test_3d_scatter_plot.render(test_3d_scatter_plot.config.durationTime);
-                add_3d_scatter_plot.render(add_3d_scatter_plot.config.durationTime);
+                train_3d_scatter_plot = new my3dScatterPlot( train_config, train_data, cent_data, +inputElem.value );
+                test_3d_scatter_plot = new my3dScatterPlot( test_config, test_data, cent_data, +inputElem.value );
+                add_3d_scatter_plot = new my3dScatterPlot( add_config, add_data, cent_data, +inputElem.value );
+                train_3d_scatter_plot.render(train_3d_scatter_plot.config.durationTime,thresholdCheck.checked);
+                test_3d_scatter_plot.render(test_3d_scatter_plot.config.durationTime,thresholdCheck.checked);
+                add_3d_scatter_plot.render(add_3d_scatter_plot.config.durationTime,thresholdCheck.checked);
             });
 
             /* ----------- Sync ----------- */
@@ -120,8 +166,18 @@ d3.queue()
                     .on('drag', draggedAddOrAll)
                     .on('start', dragStartAddOrAll)
                     .on('end', dragEndAddOrAll))
-            
-            /* ----------- 以下、回転処理に関する関数(冗長だが今回はこれで) ----------- */
+
+            /* ----------- Threshold ----------- */
+            thresholdCheck.addEventListener('change', function(){
+                if(!thresholdCheck.checked){
+                    d3.selectAll('circle.sub').remove();
+                }
+                train_3d_scatter_plot.render(train_3d_scatter_plot.config.durationTime,thresholdCheck.checked);
+                test_3d_scatter_plot.render(test_3d_scatter_plot.config.durationTime,thresholdCheck.checked);
+                add_3d_scatter_plot.render(add_3d_scatter_plot.config.durationTime,thresholdCheck.checked);
+            })
+
+            /* ----------- 以下、回転処理に関する関数(冗長だが今回はこれで...) ----------- */
             function dragStartTrainOrAll() {
                 if (syncCheck.checked) {
                     dragStartAll();
@@ -208,7 +264,7 @@ d3.queue()
                     train_3d_scatter_plot.yScale3d.rotateY(train_3d_scatter_plot.beta + train_3d_scatter_plot.config.startAngle).rotateX(train_3d_scatter_plot.alpha - train_3d_scatter_plot.config.startAngle)([train_3d_scatter_plot.yLine]),
                     train_3d_scatter_plot.zScale3d.rotateY(train_3d_scatter_plot.beta + train_3d_scatter_plot.config.startAngle).rotateX(train_3d_scatter_plot.alpha - train_3d_scatter_plot.config.startAngle)([train_3d_scatter_plot.zLine]),
                 ];
-                train_3d_scatter_plot.render(0);
+                train_3d_scatter_plot.render(0,thresholdCheck.checked);
             }
         
             function dragEndTrain() {
@@ -230,7 +286,7 @@ d3.queue()
                     test_3d_scatter_plot.yScale3d.rotateY(test_3d_scatter_plot.beta + test_3d_scatter_plot.config.startAngle).rotateX(test_3d_scatter_plot.alpha - test_3d_scatter_plot.config.startAngle)([test_3d_scatter_plot.yLine]),
                     test_3d_scatter_plot.zScale3d.rotateY(test_3d_scatter_plot.beta + test_3d_scatter_plot.config.startAngle).rotateX(test_3d_scatter_plot.alpha - test_3d_scatter_plot.config.startAngle)([test_3d_scatter_plot.zLine]),
                 ];
-                test_3d_scatter_plot.render(0);
+                test_3d_scatter_plot.render(0,thresholdCheck.checked);
             }
         
             function dragEndTest() {
@@ -252,7 +308,7 @@ d3.queue()
                     add_3d_scatter_plot.yScale3d.rotateY(add_3d_scatter_plot.beta + add_3d_scatter_plot.config.startAngle).rotateX(add_3d_scatter_plot.alpha - add_3d_scatter_plot.config.startAngle)([add_3d_scatter_plot.yLine]),
                     add_3d_scatter_plot.zScale3d.rotateY(add_3d_scatter_plot.beta + add_3d_scatter_plot.config.startAngle).rotateX(add_3d_scatter_plot.alpha - add_3d_scatter_plot.config.startAngle)([add_3d_scatter_plot.zLine]),
                 ];
-                add_3d_scatter_plot.render(0);
+                add_3d_scatter_plot.render(0,thresholdCheck.checked);
             }
         
             function dragEndAdd() {
