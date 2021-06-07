@@ -46,7 +46,7 @@ d3.queue()
                 .attr('text-anchor', 'middle')
                 .attr('font-size', '20')
                 .attr('font-weight', 'bold')
-                .text('(c) a subject not included in the trained data');
+                .text('(c) a subject not included in trained data');
             
 
             let train_config = {
