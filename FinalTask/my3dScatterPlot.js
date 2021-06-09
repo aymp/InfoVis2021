@@ -1,6 +1,6 @@
 class my3dScatterPlot {
 
-    constructor( config, data, cent_data, threshold_value ) {
+    constructor( config, data, cent_data ) {
         this.config = {
             parent: config.parent || '#drawing_region',
             origin: config.origin || [480, 300],
@@ -15,10 +15,10 @@ class my3dScatterPlot {
         }
         this.data = data;
         this.cent_data = cent_data;
-        this.init(threshold_value);
+        this.init();
     }
 
-    init(threshold) {
+    init() {
         let self = this;
 
         self.scatter = [];
@@ -71,19 +71,6 @@ class my3dScatterPlot {
 
         self.data.forEach(function(d){ self.scatter.push( {x: +d.x, y: +d.y, z: +d.z, label: +d.pred_label, body: 'main'} ) })
         
-        self.cent_data.forEach(function(d){
-            for(let x = +d.cent_x-self.threshold; x <= +d.cent_x+self.threshold; x+= 0.2){
-                for(let z = +d.cent_z-self.threshold; z <= +d.cent_z+self.threshold; z+= 0.2){
-                    let disc = self.threshold**2-(x-d.cent_x)**2-(z-d.cent_z)**2;
-                    if(disc > 0){
-                        let y1 = +d.cent_y + Math.sqrt(disc);
-                        let y2 = +d.cent_y - Math.sqrt(disc);
-                        self.scatter.push( {x: x, y: +y1, z: z, label: +d.label, body: 'sub'} );
-                        self.scatter.push( {x: x, y: +y2, z: z, label: +d.label, body: 'sub'} );
-                    }
-                }
-            }
-        });
         d3.range(self.config.minScale, self.config.maxScale+1, 1).forEach(function(d){ self.xLine.push([d, 0, 0]); });
         d3.range(self.config.minScale, self.config.maxScale+1, 1).forEach(function(d){ self.yLine.push([0, d, 0]); });
         d3.range(self.config.minScale, self.config.maxScale+1, 1).forEach(function(d){ self.zLine.push([0, 0, d]); });
@@ -102,19 +89,21 @@ class my3dScatterPlot {
         self.scatter = self.scatter.filter(function(elm){
             return elm.body != 'sub'
         })
-        self.cent_data.forEach(function(d){
-            for(let x = +d.cent_x-self.threshold; x <= +d.cent_x+self.threshold; x+= 0.2){
-                for(let z = +d.cent_z-self.threshold; z <= +d.cent_z+self.threshold; z+= 0.2){
-                    let disc = self.threshold**2-(x-d.cent_x)**2-(z-d.cent_z)**2;
-                    if(disc > 0){
-                        let y1 = +d.cent_y + Math.sqrt(disc);
-                        let y2 = +d.cent_y - Math.sqrt(disc);
-                        self.scatter.push( {x: x, y: +y1, z: z, label: +d.label, body: 'sub'} );
-                        self.scatter.push( {x: x, y: +y2, z: z, label: +d.label, body: 'sub'} );
+        if(threshold_flag){
+            self.cent_data.forEach(function(d){
+                for(let x = +d.cent_x-self.threshold; x <= +d.cent_x+self.threshold; x+= 0.2){
+                    for(let z = +d.cent_z-self.threshold; z <= +d.cent_z+self.threshold; z+= 0.2){
+                        let disc = self.threshold**2-(x-d.cent_x)**2-(z-d.cent_z)**2;
+                        if(disc > 0){
+                            let y1 = +d.cent_y + Math.sqrt(disc);
+                            let y2 = +d.cent_y - Math.sqrt(disc);
+                            self.scatter.push( {x: x, y: +y1, z: z, label: +d.label, body: 'sub'} );
+                            self.scatter.push( {x: x, y: +y2, z: z, label: +d.label, body: 'sub'} );
+                        }
                     }
                 }
-            }
-        });
+            });
+        }
         self.data = [
             self.point3d(self.scatter),
             self.xScale3d([self.xLine]),
