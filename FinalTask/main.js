@@ -138,9 +138,9 @@ d3.queue()
             /* ----------- Reset ----------- */
             d3.selectAll('button').on('click', function() {
                 d3.selectAll('g').remove();
-                train_3d_scatter_plot = new my3dScatterPlot( train_config, train_data, cent_data, +inputElem.value );
-                test_3d_scatter_plot = new my3dScatterPlot( test_config, test_data, cent_data, +inputElem.value );
-                add_3d_scatter_plot = new my3dScatterPlot( add_config, add_data, cent_data, +inputElem.value );
+                train_3d_scatter_plot = new my3dScatterPlot( train_config, train_data, cent_data );
+                test_3d_scatter_plot = new my3dScatterPlot( test_config, test_data, cent_data );
+                add_3d_scatter_plot = new my3dScatterPlot( add_config, add_data, cent_data );
                 train_3d_scatter_plot.update(train_3d_scatter_plot.config.durationTime,thresholdCheck.checked,+inputElem.value);
                 test_3d_scatter_plot.update(test_3d_scatter_plot.config.durationTime,thresholdCheck.checked,+inputElem.value);
                 add_3d_scatter_plot.update(add_3d_scatter_plot.config.durationTime,thresholdCheck.checked,+inputElem.value);
@@ -173,9 +173,6 @@ d3.queue()
                 if(!thresholdCheck.checked){
                     d3.selectAll('circle.sub').remove();
                 }
-                //train_3d_scatter_plot.render(train_3d_scatter_plot.config.durationTime,thresholdCheck.checked);
-                //test_3d_scatter_plot.render(test_3d_scatter_plot.config.durationTime,thresholdCheck.checked);
-                //add_3d_scatter_plot.render(add_3d_scatter_plot.config.durationTime,thresholdCheck.checked);
                 train_3d_scatter_plot.update(train_3d_scatter_plot.config.durationTime,thresholdCheck.checked, +inputElem.value);
                 test_3d_scatter_plot.update(test_3d_scatter_plot.config.durationTime,thresholdCheck.checked, +inputElem.value);
                 add_3d_scatter_plot.update(add_3d_scatter_plot.config.durationTime,thresholdCheck.checked, +inputElem.value);
